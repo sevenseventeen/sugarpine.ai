@@ -8,7 +8,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }) {
-  const page = byId(params.slug)
+  const { slug } = await params
+  const page = byId(slug)
   if (!page) return {}
   return {
     title: `${page.title} — Sugarpine`,
@@ -16,8 +17,9 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default function ArticlePage({ params }) {
-  const page = byId(params.slug)
+export default async function ArticlePage({ params }) {
+  const { slug } = await params
+  const page = byId(slug)
   if (!page) notFound()
 
   return (
