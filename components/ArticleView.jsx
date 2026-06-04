@@ -1,5 +1,5 @@
 'use client'
-import { byId, fmtDate, relTime } from '../lib/data.js'
+import { findById, fmtDate, relTime } from '../lib/data.js'
 import { Eyebrow, RecencyDot, YouTubeEmbed } from './ui.jsx'
 import { useShell } from './ShellContext.jsx'
 
@@ -13,8 +13,8 @@ function LivingFooter() {
 }
 
 export default function ArticleView({ page }) {
-  const { onNavigate, onSubscribe } = useShell()
-  const related = (page.related || []).map(byId).filter(Boolean)
+  const { onNavigate, onSubscribe, pages } = useShell()
+  const related = (page.related || []).map(id => findById(pages, id)).filter(Boolean)
 
   return (
     <div style={{ maxWidth: 740, margin: "0 auto", padding: "clamp(28px, 5vw, 60px) clamp(20px, 5vw, 56px) 48px" }}>

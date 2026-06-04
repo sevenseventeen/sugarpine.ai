@@ -1,5 +1,5 @@
 'use client'
-import { TOPICS, recent, relTime } from '../lib/data.js'
+import { relTime, getTopics, getRecent } from '../lib/data.js'
 import { Eyebrow, RecencyDot, YouTubeEmbed } from './ui.jsx'
 import { useShell } from './ShellContext.jsx'
 
@@ -13,8 +13,9 @@ function LivingFooter() {
 }
 
 export default function HomeView() {
-  const { onNavigate, onSubscribe, onSubscribeAll } = useShell()
-  const feed = recent.slice(0, 4)
+  const { onNavigate, onSubscribe, onSubscribeAll, pages } = useShell()
+  const feed = getRecent(pages)
+  const TOPICS = getTopics(pages)
 
   return (
     <div style={{ maxWidth: 880, margin: "0 auto", padding: "clamp(28px, 5vw, 64px) clamp(20px, 5vw, 56px) 48px" }}>

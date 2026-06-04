@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { daysAgo, relTime, ALL } from '../lib/data.js'
+import { daysAgo, relTime, getPrimer, getTopics } from '../lib/data.js'
+import { useShell } from './ShellContext.jsx'
 
 export function PineMark({ size = 26, color = "var(--accent)" }) {
   return (
@@ -69,6 +70,7 @@ function PageCheckbox({ page, checked, onChange }) {
 }
 
 export function SubscribeModal({ open, target, onClose }) {
+  const { pages = [] } = useShell()
   const [email, setEmail] = useState("")
   const [done, setDone] = useState(false)
   const [freq, setFreq] = useState("instant")
@@ -95,7 +97,7 @@ export function SubscribeModal({ open, target, onClose }) {
   if (!open) return null
 
   const selectedIds = Object.keys(selected).filter(id => selected[id])
-  const allSelected = selectedIds.length === ALL.length
+  const allSelected = selectedIds.length === pages.length
   const noneSelected = selectedIds.length === 0
   const valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) && !noneSelected
 
@@ -103,14 +105,14 @@ export function SubscribeModal({ open, target, onClose }) {
     if (allSelected) {
       setSelected({})
     } else {
-      setSelected(Object.fromEntries(ALL.map(p => [p.id, true])))
+      setSelected(Object.fromEntries(pages.map(p => [p.id, true])))
     }
   }
 
   const scopeLabel = allSelected
     ? "all of Sugarpine"
     : selectedIds.length === 1
-      ? ALL.find(p => p.id === selectedIds[0])?.title
+      ? pages.find(p => p.id === selectedIds[0])?.title
       : `${selectedIds.length} topics`
 
   return (
@@ -165,13 +167,13 @@ export function SubscribeModal({ open, target, onClose }) {
                   Subscribe to everything
                 </span>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-faint)", marginLeft: "auto", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                  {ALL.length} pages
+                  {pages.length} pages
                 </span>
               </label>
 
               {/* Group: Start here */}
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-faint)", padding: "4px 12px 4px", marginTop: 4 }}>Start here</div>
-              {ALL.filter(p => p.group === "Start here").map(p => (
+              {getPrimer(pages).map(p => (
                 <PageCheckbox key={p.id} page={p}
                   checked={!!selected[p.id]}
                   onChange={(v) => setSelected(s => ({ ...s, [p.id]: v }))}
@@ -179,7 +181,7 @@ export function SubscribeModal({ open, target, onClose }) {
               ))}
 
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-faint)", padding: "8px 12px 4px" }}>Living Landscape</div>
-              {ALL.filter(p => p.group === "Living Landscape").map(p => (
+              {getTopics(pages).map(p => (
                 <PageCheckbox key={p.id} page={p}
                   checked={!!selected[p.id]}
                   onChange={(v) => setSelected(s => ({ ...s, [p.id]: v }))}

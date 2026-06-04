@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { PRIMER, TOPICS, relTime, daysAgo } from '../lib/data.js'
+import { relTime, daysAgo, getPrimer, getTopics } from '../lib/data.js'
 import { PineMark, RecencyDot, SubscribeModal } from './ui.jsx'
 import { ShellContext } from './ShellContext.jsx'
 
@@ -29,11 +29,11 @@ function GroupLabel({ children }) {
   )
 }
 
-function Sidebar({ currentSlug, onNavigate, onSubscribeAll, collapsed }) {
+function Sidebar({ currentSlug, onNavigate, onSubscribeAll, collapsed, pages }) {
   const [q, setQ] = useState("")
   const match = (p) => p.title.toLowerCase().includes(q.toLowerCase()) || p.blurb.toLowerCase().includes(q.toLowerCase())
-  const primer = PRIMER.filter(match)
-  const topics = TOPICS.filter(match)
+  const primer = getPrimer(pages).filter(match)
+  const topics = getTopics(pages).filter(match)
 
   const NavItem = ({ p }) => {
     const active = currentSlug === p.id
@@ -104,7 +104,7 @@ function Sidebar({ currentSlug, onNavigate, onSubscribeAll, collapsed }) {
   )
 }
 
-export default function Shell({ children }) {
+export default function Shell({ children, pages = [] }) {
   const router = useRouter()
   const pathname = usePathname()
   const [modal, setModal] = useState({ open: false, target: null })
@@ -135,14 +135,14 @@ export default function Shell({ children }) {
   const closeSub = () => setModal({ open: false, target: null })
 
   return (
-    <ShellContext.Provider value={{ onNavigate: navigate, onSubscribe: openSub, onSubscribeAll: () => openSub(null) }}>
+    <ShellContext.Provider value={{ onNavigate: navigate, onSubscribe: openSub, onSubscribeAll: () => openSub(null), pages }}>
       <div style={{ ...THEME_VARS, position: "fixed", inset: 0, display: "flex", background: "var(--bg)", color: "var(--text)", fontFamily: "var(--font-ui)" }}>
         {narrow && !collapsed && (
           <div onClick={() => setCollapsed(true)} style={{ position: "fixed", inset: 0, zIndex: 25, background: "color-mix(in srgb, var(--bg) 55%, transparent)" }} />
         )}
 
         <div style={{ position: narrow ? "fixed" : "relative", zIndex: 30, height: "100%", boxShadow: narrow && !collapsed ? "0 0 60px rgba(0,0,0,.5)" : "none" }}>
-          <Sidebar currentSlug={currentSlug} onNavigate={navigate} onSubscribeAll={() => openSub(null)} collapsed={collapsed} />
+          <Sidebar currentSlug={currentSlug} onNavigate={navigate} onSubscribeAll={() => openSub(null)} collapsed={collapsed} pages={pages} />
         </div>
 
         <main ref={scrollRef} style={{ flex: 1, overflowY: "auto", height: "100%", position: "relative" }}>
