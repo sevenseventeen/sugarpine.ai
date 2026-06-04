@@ -1,7 +1,8 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useTransition } from 'react'
 import { daysAgo, relTime, getPrimer, getTopics } from '../lib/data.js'
 import { useShell } from './ShellContext.jsx'
+import { subscribe } from '../app/actions.js'
 
 export function PineMark({ size = 26, color = "var(--accent)" }) {
   return (
@@ -75,7 +76,10 @@ export function SubscribeModal({ open, target, onClose }) {
   const [done, setDone] = useState(false)
   const [freq, setFreq] = useState("instant")
   const [selected, setSelected] = useState({})
+  const [error, setError] = useState(null)
+  const [isPending, startTransition] = useTransition()
   const inputRef = useRef(null)
+  const submitRef = useRef(null)
 
   // When modal opens: pre-select the target page (or nothing if "subscribe all" button)
   useEffect(() => {
@@ -195,7 +199,7 @@ export function SubscribeModal({ open, target, onClose }) {
               <input
                 ref={inputRef} type="email" value={email} placeholder="you@example.com"
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && valid) setDone(true) }}
+                onKeyDown={(e) => { if (e.key === "Enter") submitRef.current?.click() }}
                 style={{
                   width: "100%", boxSizing: "border-box", padding: "11px 14px", borderRadius: 10,
                   border: "1px solid var(--border)", background: "var(--bg-elev)", color: "var(--text)",
@@ -215,15 +219,29 @@ export function SubscribeModal({ open, target, onClose }) {
                 ))}
               </div>
 
-              <button disabled={!valid} onClick={() => setDone(true)} style={{
+              <button ref={submitRef} disabled={!valid || isPending} onClick={() => {
+              setError(null)
+              startTransition(async () => {
+                try {
+                  const scope = allSelected ? 'all' : selectedIds[0]
+                  // Insert one row per selected page (or one 'all' row)
+                  const scopes = allSelected ? ['all'] : selectedIds
+                  await Promise.all(scopes.map(s => subscribe({ email, scope: s, frequency: freq })))
+                  setDone(true)
+                } catch (e) {
+                  setError("Something went wrong. Please try again.")
+                }
+              })
+            }} style={{
                 width: "100%", padding: "13px", borderRadius: 10, border: "none",
                 cursor: valid ? "pointer" : "not-allowed",
                 background: valid ? "var(--accent)" : "var(--border)",
                 color: valid ? "var(--accent-on)" : "var(--text-faint)",
                 fontSize: 15, fontWeight: 600, fontFamily: "var(--font-ui)", transition: "background .15s",
               }}>
-                {noneSelected ? "Select at least one topic" : `Subscribe to ${scopeLabel} →`}
+                {isPending ? "Subscribing…" : noneSelected ? "Select at least one topic" : `Subscribe to ${scopeLabel} →`}
               </button>
+              {error && <p style={{ margin: "10px 0 0", fontSize: 13, color: "#e05555", textAlign: "center" }}>{error}</p>}
               <p style={{ margin: "12px 0 0", fontSize: 11.5, color: "var(--text-faint)", textAlign: "center", lineHeight: 1.5 }}>
                 No spam. Unsubscribe in one click. We never share your email.
               </p>
