@@ -44,14 +44,14 @@ export function RecencyDot({ updated, withLabel }) {
 // Checkbox row for a single page
 function PageCheckbox({ page, checked, onChange }) {
   return (
-    <label style={{
+    <label onClick={() => onChange(!checked)} style={{
       display: "flex", alignItems: "center", gap: 12, padding: "9px 12px",
       borderRadius: 9, cursor: "pointer", transition: "background .12s",
       background: checked ? "var(--accent-ghost)" : "transparent",
     }}
     onMouseEnter={(e) => { if (!checked) e.currentTarget.style.background = "var(--bg-elev)" }}
     onMouseLeave={(e) => { if (!checked) e.currentTarget.style.background = "transparent" }}>
-      <div onClick={() => onChange(!checked)} style={{
+      <div style={{
         width: 18, height: 18, borderRadius: 5, flexShrink: 0, cursor: "pointer",
         border: `2px solid ${checked ? "var(--accent)" : "var(--border)"}`,
         background: checked ? "var(--accent)" : "transparent",
@@ -147,12 +147,12 @@ export function SubscribeModal({ open, target, onClose }) {
             {/* Page list */}
             <div style={{ flex: 1, overflowY: "auto", padding: "8px 16px" }}>
               {/* Select all row */}
-              <label style={{
+              <label onClick={toggleAll} style={{
                 display: "flex", alignItems: "center", gap: 12, padding: "10px 12px",
                 borderRadius: 9, cursor: "pointer", marginBottom: 4,
                 borderBottom: "1px solid var(--border)", paddingBottom: 12, marginBottom: 8,
               }}>
-                <div onClick={toggleAll} style={{
+                <div style={{
                   width: 18, height: 18, borderRadius: 5, flexShrink: 0, cursor: "pointer",
                   border: `2px solid ${allSelected ? "var(--accent)" : "var(--border)"}`,
                   background: allSelected ? "var(--accent)" : "transparent",
