@@ -19,13 +19,15 @@ export default function HomeView() {
 
   return (
     <div style={{ maxWidth: 880, margin: "0 auto", padding: "clamp(28px, 5vw, 64px) clamp(20px, 5vw, 56px) 48px" }}>
-      <Eyebrow style={{ marginBottom: 20 }}>An independent, living guide to AI</Eyebrow>
+      <Eyebrow style={{ marginBottom: 20 }}>An evergreen guide to AI</Eyebrow>
+      <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: "clamp(16px, 2vw, 20px)", color: "var(--text-dim)", margin: "0 0 10px" }}>You found it!</p>
       <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: "clamp(36px, 6vw, 60px)", lineHeight: 1.04, letterSpacing: "-0.025em", margin: 0, color: "var(--text)", textWrap: "balance" }}>
-        Understand AI.<br />Then watch it <span style={{ color: "var(--accent)", fontStyle: "italic" }}>move.</span>
+        The Missing Guide to AI.
       </h1>
-      <p style={{ marginTop: 22, fontSize: "clamp(16px, 2vw, 19px)", lineHeight: 1.6, color: "var(--text-dim)", maxWidth: 560, textWrap: "pretty" }}>
-        Come for the explanations — what AI is, in plain language, with nothing assumed. Stay for the landscape: a set of living pages that track what these systems can actually do, updated as the ground shifts.
+      <p style={{ marginTop: 22, fontSize: "clamp(16px, 2vw, 19px)", lineHeight: 1.6, color: "var(--text-dim)", maxWidth: 600, textWrap: "pretty" }}>
+        Seemingly overnight, AI has settled into nearly every corner of the world. It's simultaneously threatening and promising to change everything. We're here to help you understand, in plain terms, what it is, how it works, what to worry about, and what to be genuinely excited by. We'll also track the frontier: the news, the trends, and the relentless stream of breakthroughs, broken down so they actually make sense.
       </p>
+      <p style={{ marginTop: 22, fontSize: "clamp(15px, 1.8vw, 17px)", fontWeight: 600, color: "var(--text)", fontFamily: "var(--font-ui)" }}>Here are a few popular places to start:</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 30 }}>
         <button onClick={() => onNavigate("what-is-ai")} style={{ padding: "13px 24px", borderRadius: 11, border: "none", cursor: "pointer", background: "var(--accent)", color: "var(--accent-on)", fontSize: 15, fontWeight: 600, fontFamily: "var(--font-ui)" }}>Start with AI 101 →</button>
         <button onClick={() => onNavigate("text-generation")} style={{ padding: "13px 24px", borderRadius: 11, border: "1px solid var(--border)", cursor: "pointer", background: "transparent", color: "var(--text)", fontSize: 15, fontWeight: 500, fontFamily: "var(--font-ui)" }}>Explore the landscape</button>
