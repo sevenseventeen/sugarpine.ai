@@ -19,13 +19,12 @@ export default function HomeView() {
 
   return (
     <div style={{ maxWidth: 880, margin: "0 auto", padding: "clamp(28px, 5vw, 64px) clamp(20px, 5vw, 56px) 48px" }}>
-      <Eyebrow style={{ marginBottom: 20 }}>An evergreen guide to AI</Eyebrow>
-      <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: "clamp(16px, 2vw, 20px)", color: "var(--text-dim)", margin: "0 0 10px" }}>You found it!</p>
+      <p style={{ fontFamily: "var(--font-display)", fontStyle: "italic", fontSize: "clamp(16px, 2vw, 20px)", color: "var(--text-dim)", margin: "0 0 10px" }}>Sugarpine</p>
       <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: "clamp(36px, 6vw, 60px)", lineHeight: 1.04, letterSpacing: "-0.025em", margin: 0, color: "var(--text)", textWrap: "balance" }}>
-        The Missing Guide to AI.
+        An evergreen guide to AI
       </h1>
       <p style={{ marginTop: 22, fontSize: "clamp(16px, 2vw, 19px)", lineHeight: 1.6, color: "var(--text-dim)", maxWidth: 600, textWrap: "pretty" }}>
-        Seemingly overnight, AI has settled into nearly every corner of the world. It's simultaneously threatening and promising to change everything. We're here to help you understand, in plain terms, what it is, how it works, what to worry about, and what to be genuinely excited by. We'll also track the frontier: the news, the trends, and the relentless stream of breakthroughs, broken down so they actually make sense.
+        Seemingly overnight, AI has settled into nearly every corner of the world - and It's simultaneously threatening and promising to change everything. We're here to help you understand, in human terms, what it is, how it works, what to worry about, and what to be genuinely excited by. We'll also track the frontier: the news, the trends, and the latest jaw-dropping changes.
       </p>
       <p style={{ marginTop: 22, fontSize: "clamp(15px, 1.8vw, 17px)", fontWeight: 600, color: "var(--text)", fontFamily: "var(--font-ui)" }}>Here are a few popular places to start:</p>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 30 }}>
@@ -37,7 +36,6 @@ export default function HomeView() {
       <div style={{ marginTop: 64 }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
           <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, letterSpacing: "-0.01em", color: "var(--text)", margin: 0, whiteSpace: "nowrap" }}>Recently updated</h2>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.1em" }}>What changed</span>
         </div>
         <div style={{ borderTop: "1px solid var(--border)" }}>
           {feed.map((p) => (
@@ -92,17 +90,10 @@ export default function HomeView() {
       {/* Subscribe band */}
       <div style={{ marginTop: 56, border: "1px solid var(--border)", borderRadius: 16, padding: "clamp(24px,4vw,38px)", background: "linear-gradient(135deg, var(--accent-ghost), var(--bg-card))", display: "flex", flexWrap: "wrap", gap: 20, alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ maxWidth: 460 }}>
-          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 25, letterSpacing: "-0.01em", color: "var(--text)", margin: "0 0 8px" }}>Don't check back. Get told.</h2>
+          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 25, letterSpacing: "-0.01em", color: "var(--text)", margin: "0 0 8px" }}>Follow your favorites</h2>
           <p style={{ color: "var(--text-dim)", fontSize: 14.5, lineHeight: 1.6, margin: 0 }}>Subscribe to a single topic and hear only when it changes — or follow the whole landscape in one calm email.</p>
         </div>
         <button onClick={onSubscribeAll} style={{ padding: "13px 26px", borderRadius: 11, border: "none", cursor: "pointer", background: "var(--accent)", color: "var(--accent-on)", fontSize: 15, fontWeight: 600, fontFamily: "var(--font-ui)", whiteSpace: "nowrap" }}>Subscribe to everything</button>
-      </div>
-
-      {/* YouTube band */}
-      <div style={{ marginTop: 56 }}>
-        <Eyebrow style={{ marginBottom: 10 }}>From the channel</Eyebrow>
-        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 24, letterSpacing: "-0.01em", color: "var(--text)", margin: "0 0 18px" }}>Watch the explanations</h2>
-        <YouTubeEmbed id="aircAruvnKk" title="How AI actually works — the plain-language version" />
       </div>
 
       <LivingFooter />

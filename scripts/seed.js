@@ -18,7 +18,7 @@ const supabase = createClient(
 
 const PAGES = [
   {
-    id: "what-is-ai", group: "Start here", title: "What AI Actually Is",
+    id: "what-is-ai", group: "Start here", title: "What is AI?",
     kicker: "AI 101", read_mins: 6, updated_at: "2026-05-28T00:00:00Z",
     blurb: "No math, no jargon. A plain-language picture of what these systems are — and what they aren't.",
     lede: "Strip away the headlines and modern AI is a strikingly simple idea applied at enormous scale: a program that has read a very large amount of text and learned to predict what comes next. Everything else — the chatbots, the agents, the coding tools — is built on top of that one trick.",
@@ -30,7 +30,7 @@ const PAGES = [
     related: ["key-terms", "text-generation", "coding"],
   },
   {
-    id: "key-terms", group: "Start here", title: "The Words People Use",
+    id: "key-terms", group: "Start here", title: "AI Glossary",
     kicker: "AI 101 · Glossary", read_mins: 7, updated_at: "2026-05-30T00:00:00Z",
     cards_heading: "The vocabulary",
     blurb: "LLM, agent, tool, skill, MCP, RAG — the words you need to follow any AI conversation.",
