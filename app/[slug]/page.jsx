@@ -1,17 +1,17 @@
 import { notFound } from 'next/navigation'
-import { getAllPages, findById } from '../../lib/data.js'
+import { getAllPages, findBySlug } from '../../lib/data.js'
 import Shell from '../../components/Shell.jsx'
 import ArticleView from '../../components/ArticleView.jsx'
 
 export async function generateStaticParams() {
   const pages = await getAllPages()
-  return pages.map((page) => ({ slug: page.id }))
+  return pages.map((page) => ({ slug: page.slug }))
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params
   const pages = await getAllPages()
-  const page = findById(pages, slug)
+  const page = findBySlug(pages, slug)
   if (!page) return {}
   return {
     title: `${page.title} — Sugarpine`,
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }) {
 export default async function ArticlePage({ params }) {
   const { slug } = await params
   const pages = await getAllPages()
-  const page = findById(pages, slug)
+  const page = findBySlug(pages, slug)
   if (!page) notFound()
 
   return (

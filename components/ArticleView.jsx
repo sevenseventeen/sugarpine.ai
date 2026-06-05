@@ -1,5 +1,5 @@
 'use client'
-import { findById, fmtDate, relTime } from '../lib/data.js'
+import { findBySlug, fmtDate, relTime } from '../lib/data.js'
 import { Eyebrow, RecencyDot, YouTubeEmbed } from './ui.jsx'
 import { useShell } from './ShellContext.jsx'
 
@@ -14,7 +14,7 @@ function LivingFooter() {
 
 export default function ArticleView({ page }) {
   const { onNavigate, onSubscribe, pages } = useShell()
-  const related = (page.related || []).map(id => findById(pages, id)).filter(Boolean)
+  const related = (page.related || []).map(id => pages.find(p => p.id === id)).filter(Boolean)
 
   return (
     <div style={{ maxWidth: 740, margin: "0 auto", padding: "clamp(28px, 5vw, 60px) clamp(20px, 5vw, 56px) 48px" }}>
@@ -82,7 +82,7 @@ export default function ArticleView({ page }) {
           <Eyebrow style={{ marginBottom: 14 }}>Related</Eyebrow>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(210px, 1fr))", gap: 12 }}>
             {related.map((r) => (
-              <button key={r.id} onClick={() => onNavigate(r.id)} style={{
+              <button key={r.id} onClick={() => onNavigate(r.slug)} style={{
                 textAlign: "left", border: "1px solid var(--border)", borderRadius: 11, padding: "14px 16px",
                 background: "var(--bg-card)", cursor: "pointer",
               }}

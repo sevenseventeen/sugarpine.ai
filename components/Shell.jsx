@@ -36,9 +36,9 @@ function Sidebar({ currentSlug, onNavigate, onSubscribeAll, collapsed, pages }) 
   const topics = getTopics(pages).filter(match)
 
   const NavItem = ({ p }) => {
-    const active = currentSlug === p.id
+    const active = currentSlug === p.slug
     return (
-      <button onClick={() => onNavigate(p.id)} style={{
+      <button onClick={() => onNavigate(p.slug)} style={{
         display: "flex", alignItems: "center", gap: 9, width: "100%", textAlign: "left",
         padding: "8px 10px", borderRadius: 8, cursor: "pointer", border: "none",
         background: active ? "var(--accent-ghost)" : "transparent",
