@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getAllPages, findBySlug } from '../../lib/data.js'
+import { getAllPages, getPageContent } from '../../lib/data.js'
 import Shell from '../../components/Shell.jsx'
 import ArticleView from '../../components/ArticleView.jsx'
 
@@ -10,8 +10,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params
-  const pages = await getAllPages()
-  const page = findBySlug(pages, slug)
+  const page = await getPageContent(slug)
   if (!page) return {}
   return {
     title: `${page.title} — Sugarpine`,
@@ -21,8 +20,10 @@ export async function generateMetadata({ params }) {
 
 export default async function ArticlePage({ params }) {
   const { slug } = await params
-  const pages = await getAllPages()
-  const page = findBySlug(pages, slug)
+  const [pages, page] = await Promise.all([
+    getAllPages(),
+    getPageContent(slug),
+  ])
   if (!page) notFound()
 
   return (
