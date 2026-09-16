@@ -1,118 +1,142 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { relTime, daysAgo, getPrimer, getTopics } from '../lib/data.js'
-import { PineMark, RecencyDot, SubscribeModal } from './ui.jsx'
+import { NAV } from '../lib/nav.js'
+import { PineMark, SubscribeModal } from './ui.jsx'
 import { ShellContext } from './ShellContext.jsx'
 
-const THEME_VARS = {
-  "--bg": "#0e0e0c",
-  "--bg-elev": "#15150f",
-  "--bg-card": "#17170f",
-  "--border": "#2c2a22",
-  "--text": "#efe9dd",
-  "--text-dim": "#b1aa9a",
-  "--text-faint": "#787264",
-  "--accent": "#c9a96e",
-  "--accent-on": "#1c1405",
-  "--accent-ghost": "color-mix(in srgb, #c9a96e 14%, transparent)",
-  "--font-display": "var(--loaded-spectral, Georgia, serif)",
-  "--font-ui": "var(--loaded-ibm-sans, system-ui, sans-serif)",
-  "--font-mono": "var(--loaded-ibm-mono, ui-monospace, monospace)",
-}
+// ── Period slider — two knobs on a pressed groove, orange span between ────────
 
-function GroupLabel({ children }) {
+function PeriodSlider({ minY, maxY, from, to, onChange }) {
+  const trackRef = useRef(null)
+  const dragRef = useRef(null)
+  const span = Math.max(1, maxY - minY)
+
+  useEffect(() => {
+    const move = (e) => {
+      if (!dragRef.current || !trackRef.current) return
+      const r = trackRef.current.getBoundingClientRect()
+      const t = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width))
+      const y = minY + Math.round(t * span)
+      if (dragRef.current === "from") onChange({ from: Math.min(y, to), to })
+      else onChange({ from, to: Math.max(y, from) })
+    }
+    const up = () => { dragRef.current = null }
+    document.addEventListener("pointermove", move)
+    document.addEventListener("pointerup", up)
+    return () => {
+      document.removeEventListener("pointermove", move)
+      document.removeEventListener("pointerup", up)
+    }
+  }, [minY, span, from, to, onChange])
+
+  const pct = (y) => (((y - minY) / span) * 100).toFixed(2) + "%"
+  const knob = {
+    position: "absolute", top: 4, width: 18, height: 18, margin: "-9px 0 0 -9px", borderRadius: "50%",
+    background: "#EEF1F5", cursor: "grab", touchAction: "none",
+    boxShadow: "2px 2px 5px rgba(150,165,190,.5), -1px -1px 3px rgba(255,255,255,.8), inset 1px 1px 0 rgba(255,255,255,.9)",
+  }
+  const label = { font: "400 9.5px/1 var(--font-mono)", letterSpacing: ".06em", color: "var(--text-dim)" }
+  const range = from === to ? String(from) : `${from}–${to}`
+
   return (
-    <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--text-faint)", padding: "0 10px", margin: "18px 0 8px" }}>
-      {children}
+    <div style={{ display: "flex", flexDirection: "column", gap: 13, padding: "0 13px" }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
+        <span style={{ font: "400 9.5px/1 var(--font-ui)", letterSpacing: ".2em", textTransform: "uppercase", color: "var(--text-dim)" }}>Period</span>
+        <span style={{ font: "500 11px/1 var(--font-mono)", letterSpacing: ".06em", color: "var(--text)" }}>{range}</span>
+      </div>
+      <div style={{ padding: "9px 9px 5px", position: "relative", height: 26 }}>
+        <div ref={trackRef} style={{
+          position: "relative", height: 8, borderRadius: 4, background: "var(--bg-elev)",
+          boxShadow: "inset 2px 2px 4px rgba(160,174,196,.55), inset -1px -1px 2px rgba(255,255,255,.9)",
+        }}>
+          <div style={{ position: "absolute", top: 0, bottom: 0, borderRadius: 4, background: "var(--slider-fill)", boxShadow: "inset 1px 1px 1px rgba(89,99,122,.25)", left: pct(from), right: (100 - ((to - minY) / span) * 100).toFixed(2) + "%" }} />
+          <div onPointerDown={(e) => { e.preventDefault(); dragRef.current = "from" }} style={{ ...knob, left: pct(from) }} />
+          <div onPointerDown={(e) => { e.preventDefault(); dragRef.current = "to" }} style={{ ...knob, left: pct(to) }} />
+        </div>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", padding: "0 3px", ...label }}><span>{minY}</span><span>{maxY}</span></div>
     </div>
   )
 }
 
-function Sidebar({ currentSlug, onNavigate, onSubscribeAll, collapsed, pages }) {
-  const [q, setQ] = useState("")
-  const match = (p) => p.title.toLowerCase().includes(q.toLowerCase()) || p.blurb.toLowerCase().includes(q.toLowerCase())
-  const primer = getPrimer(pages).filter(match)
-  const topics = getTopics(pages).filter(match)
+// ── Sidebar ──────────────────────────────────────────────────────────────────
 
-  const NavItem = ({ p }) => {
-    const active = currentSlug === p.slug
-    return (
-      <button onClick={() => onNavigate(p.slug)} style={{
-        display: "flex", alignItems: "center", gap: 9, width: "100%", textAlign: "left",
-        padding: "8px 10px", borderRadius: 8, cursor: "pointer", border: "none",
-        background: active ? "var(--accent-ghost)" : "transparent",
-        color: active ? "var(--text)" : "var(--text-dim)",
-        fontSize: 13.5, fontFamily: "var(--font-ui)", lineHeight: 1.3, marginBottom: 1,
-        transition: "background .12s, color .12s",
-      }}
-      onMouseEnter={(e) => { if (!active) e.currentTarget.style.background = "var(--bg-elev)" }}
-      onMouseLeave={(e) => { if (!active) e.currentTarget.style.background = "transparent" }}>
-        <RecencyDot updated={p.updated} />
-        <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: active ? 600 : 400 }}>{p.title}</span>
-      </button>
-    )
-  }
+function Sidebar({ collapsed, entries, timeline, currentSlug, onNavigate, onSubscribeAll }) {
+  const { from, to, setRange, minY, maxY } = timeline
+  const inRange = entries.filter((e) => e.year >= from && e.year <= to)
+  const rows = [{ label: "All Topics", slug: "home", count: inRange.length }]
+    .concat(NAV.map((n) => ({
+      label: n.label, slug: n.slug,
+      count: n.kind === "timeline" ? inRange.filter((e) => e.topics.some((t) => t.slug === n.slug)).length : null,
+    })))
 
   return (
     <aside style={{
-      width: collapsed ? 0 : 268, flexShrink: 0, borderRight: "1px solid var(--border)",
-      background: "var(--bg-elev)", height: "100%", overflow: "hidden",
+      width: collapsed ? 0 : 276, flexShrink: 0, height: "100%", overflow: "hidden",
       display: "flex", flexDirection: "column", transition: "width .22s ease",
     }}>
-      <div style={{ width: 268, display: "flex", flexDirection: "column", height: "100%" }}>
-        <button onClick={() => onNavigate("home")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "20px 18px 16px", background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}>
-          <PineMark size={26} />
-          <div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: 19, fontWeight: 600, color: "var(--text)", letterSpacing: "-0.01em", lineHeight: 1 }}>Sugarpine</div>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: 9.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-faint)", marginTop: 3 }}>sugarpine.ai</div>
-          </div>
-        </button>
-
-        <div style={{ padding: "4px 14px 6px" }}>
-          <div style={{ position: "relative" }}>
-            <span style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "var(--text-faint)", fontSize: 13 }}>⌕</span>
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search topics"
-              style={{
-                width: "100%", boxSizing: "border-box", padding: "9px 12px 9px 30px", borderRadius: 9,
-                border: "1px solid var(--border)", background: "var(--bg)", color: "var(--text)",
-                fontSize: 13, fontFamily: "var(--font-ui)", outline: "none",
-              }} />
-          </div>
+      <div style={{ width: 276, height: "100%", overflowY: "auto", padding: "30px 24px 36px 30px", display: "flex", flexDirection: "column", gap: 30 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {rows.map((r) => {
+            const active = currentSlug === r.slug
+            return (
+              <button key={r.slug} className="sp-nav" onClick={() => onNavigate(r.slug)} style={{
+                display: "flex", alignItems: "baseline", gap: 9, width: "100%", textAlign: "left",
+                border: 0, cursor: "pointer", background: "transparent", padding: "9px 13px", borderRadius: 11,
+                fontFamily: "var(--font-ui)", fontSize: 13, letterSpacing: ".015em",
+                fontWeight: active ? 500 : 400,
+                color: active ? "#414B5E" : (r.count === 0 ? "var(--text-faint)" : "var(--text-dim)"),
+                boxShadow: active ? "var(--shadow-press)" : "none",
+              }}>
+                <span style={{ flex: 1 }}>{r.label}</span>
+                {r.count !== null && <span style={{ font: "400 9.5px var(--font-mono)", color: "var(--text-dim)" }}>{r.count}</span>}
+              </button>
+            )
+          })}
         </div>
 
-        <nav style={{ flex: 1, overflowY: "auto", padding: "2px 8px 8px" }}>
-          {primer.length > 0 && <GroupLabel>Start here</GroupLabel>}
-          {primer.map((p) => <NavItem key={p.id} p={p} />)}
-          {topics.length > 0 && <GroupLabel>Living Landscape</GroupLabel>}
-          {topics.map((p) => <NavItem key={p.id} p={p} />)}
-          {primer.length === 0 && topics.length === 0 && (
-            <div style={{ padding: "20px 12px", color: "var(--text-faint)", fontSize: 13, fontFamily: "var(--font-ui)" }}>No topics match "{q}".</div>
-          )}
-        </nav>
-
-        <div style={{ padding: 14, borderTop: "1px solid var(--border)" }}>
-          <button onClick={onSubscribeAll} style={{
-            width: "100%", padding: "11px", borderRadius: 10, border: "none", cursor: "pointer",
-            background: "var(--accent)", color: "var(--accent-on)", fontSize: 13.5, fontWeight: 600,
-            fontFamily: "var(--font-ui)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, whiteSpace: "nowrap",
-          }}>Subscribe to everything</button>
-          <p style={{ margin: "10px 2px 0", fontSize: 11, color: "var(--text-faint)", lineHeight: 1.5, textAlign: "center" }}>An independent, reader-funded guide. No ads.</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+          <PeriodSlider minY={minY} maxY={maxY} from={from} to={to} onChange={setRange} />
+          <div style={{ padding: "0 13px" }}>
+            <button className="sp-btn" onClick={onSubscribeAll} style={{
+              display: "block", width: "100%", textAlign: "center", marginTop: 14, padding: "15px 16px", borderRadius: 14,
+              fontSize: 11, letterSpacing: ".19em",
+            }}>Subscribe</button>
+          </div>
         </div>
       </div>
     </aside>
   )
 }
 
-export default function Shell({ children, pages = [] }) {
+// ── Shell ────────────────────────────────────────────────────────────────────
+
+// Shell remounts on every route change; carry the period across so it sticks.
+// Browser-only: on the server, module state would leak between requests.
+const isBrowser = typeof window !== 'undefined'
+let carried = { range: null }
+
+export default function Shell({ children, pages = [], entries = [] }) {
   const router = useRouter()
   const pathname = usePathname()
   const [modal, setModal] = useState({ open: false, target: null })
   const [narrow, setNarrow] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const scrollRef = useRef(null)
-
   const currentSlug = pathname === '/' ? 'home' : pathname.replace(/^\//, '')
+
+  // The period filter lives here so the sidebar and every timeline share it
+  const maxY = new Date().getFullYear()
+  const minY = Math.min(maxY - 1, ...entries.map((e) => e.year))
+  const [range, setRange] = useState((isBrowser && carried.range) || { from: minY, to: maxY })
+  const from = Math.max(minY, range.from), to = Math.min(maxY, range.to)
+  if (isBrowser) carried = { range }
+
+  const timeline = useMemo(() => ({
+    from, to, minY, maxY, setRange,
+    reset: () => setRange({ from: minY, to: maxY }),
+  }), [from, to, minY, maxY])
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 880px)")
@@ -134,29 +158,41 @@ export default function Shell({ children, pages = [] }) {
   const openSub = (target) => setModal({ open: true, target: target || null })
   const closeSub = () => setModal({ open: false, target: null })
 
+  const goHome = () => navigate("home")
+
   return (
-    <ShellContext.Provider value={{ onNavigate: navigate, onSubscribe: openSub, onSubscribeAll: () => openSub(null), pages }}>
-      <div style={{ ...THEME_VARS, position: "fixed", inset: 0, display: "flex", background: "var(--bg)", color: "var(--text)", fontFamily: "var(--font-ui)" }}>
-        {narrow && !collapsed && (
-          <div onClick={() => setCollapsed(true)} style={{ position: "fixed", inset: 0, zIndex: 25, background: "color-mix(in srgb, var(--bg) 55%, transparent)" }} />
-        )}
+    <ShellContext.Provider value={{ onNavigate: navigate, onSubscribe: openSub, onSubscribeAll: () => openSub(null), pages, entries, timeline }}>
+      <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: "var(--bg)", color: "var(--text)", fontFamily: "var(--font-ui)", WebkitFontSmoothing: "antialiased" }}>
 
-        <div style={{ position: narrow ? "fixed" : "relative", zIndex: 30, height: "100%", boxShadow: narrow && !collapsed ? "0 0 60px rgba(0,0,0,.5)" : "none" }}>
-          <Sidebar currentSlug={currentSlug} onNavigate={navigate} onSubscribeAll={() => openSub(null)} collapsed={collapsed} pages={pages} />
-        </div>
-
-        <main ref={scrollRef} style={{ flex: 1, overflowY: "auto", height: "100%", position: "relative" }}>
+        {/* Brand header — full width, raised off the page by a tight shadow */}
+        <header style={{ flex: "none", height: 52, zIndex: 40, display: "flex", justifyContent: "center", background: "var(--bg-header)", boxShadow: "var(--shadow-header)" }}>
+          <div style={{ width: "100%", maxWidth: 1280, display: "flex", alignItems: "center", gap: 12, padding: "0 30px" }}>
           {narrow && (
-            <div style={{ position: "sticky", top: 0, zIndex: 10, display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", background: "color-mix(in srgb, var(--bg) 88%, transparent)", backdropFilter: "blur(10px)", borderBottom: "1px solid var(--border)" }}>
-              <button onClick={() => setCollapsed((c) => !c)} aria-label="Menu" style={{ width: 36, height: 36, borderRadius: 9, border: "1px solid var(--border)", background: "transparent", color: "var(--text)", cursor: "pointer", fontSize: 16 }}>☰</button>
-              <button onClick={() => navigate("home")} style={{ display: "flex", alignItems: "center", gap: 8, background: "transparent", border: "none", cursor: "pointer" }}>
-                <PineMark size={20} />
-                <span style={{ fontFamily: "var(--font-display)", fontSize: 17, fontWeight: 600, color: "var(--text)" }}>Sugarpine</span>
-              </button>
-            </div>
+            <button onClick={() => setCollapsed((c) => !c)} aria-label="Menu" style={{ width: 30, height: 30, borderRadius: 9, border: 0, background: "var(--bg)", color: "var(--text-dim)", cursor: "pointer", fontSize: 14, boxShadow: "var(--shadow-btn)", marginRight: 4 }}>☰</button>
           )}
-          {children}
-        </main>
+          <button onClick={goHome} style={{ display: "flex", alignItems: "baseline", gap: 8, padding: 0, border: 0, background: "transparent", cursor: "pointer", font: "500 21px/1 var(--font-brand)", letterSpacing: "-.01em", color: "var(--text-head)" }}>
+            <PineMark size={18} color="var(--text-head)" />
+            Sugarpine
+          </button>
+          </div>
+        </header>
+
+        {/* Page frame — sidebar + content composed at 1280 and centred */}
+        <div style={{ flex: 1, minHeight: 0, display: "flex", justifyContent: "center" }}>
+          <div style={{ width: "100%", maxWidth: 1280, height: "100%", display: "flex", position: "relative" }}>
+            {narrow && !collapsed && (
+              <div onClick={() => setCollapsed(true)} style={{ position: "fixed", inset: "52px 0 0", zIndex: 25, background: "rgba(89,99,122,.28)" }} />
+            )}
+
+            <div style={{ position: narrow ? "fixed" : "relative", top: narrow ? 52 : undefined, bottom: narrow ? 0 : undefined, left: narrow ? 0 : undefined, zIndex: 30, height: narrow ? undefined : "100%", background: "var(--bg)", boxShadow: narrow && !collapsed ? "8px 0 30px rgba(120,136,164,.35)" : "none" }}>
+              <Sidebar collapsed={collapsed} entries={entries} timeline={timeline} currentSlug={currentSlug} onNavigate={navigate} onSubscribeAll={() => openSub(null)} />
+            </div>
+
+            <main ref={scrollRef} style={{ flex: 1, minWidth: 0, overflowY: "auto", height: "100%" }}>
+              {children}
+            </main>
+          </div>
+        </div>
 
         <SubscribeModal open={modal.open} target={modal.target} onClose={closeSub} />
       </div>

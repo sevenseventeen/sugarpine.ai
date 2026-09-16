@@ -6,6 +6,8 @@ export const ShellContext = createContext({
   onSubscribe: () => {},
   onSubscribeAll: () => {},
   pages: [],
+  entries: [],
+  timeline: { from: 0, to: 0, minY: 0, maxY: 0, setRange: () => {}, reset: () => {} },
 })
 
 export function useShell() {

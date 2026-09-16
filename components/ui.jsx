@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef, useTransition } from 'react'
-import { daysAgo, relTime, getPrimer, getTopics } from '../lib/data.js'
+import { daysAgo, relTime, getTopics } from '../lib/data.js'
 import { useShell } from './ShellContext.jsx'
 import { subscribe } from '../app/actions.js'
 
@@ -175,16 +175,7 @@ export function SubscribeModal({ open, target, onClose }) {
                 </span>
               </label>
 
-              {/* Group: Start here */}
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-faint)", padding: "4px 12px 4px", marginTop: 4 }}>Start here</div>
-              {getPrimer(pages).map(p => (
-                <PageCheckbox key={p.id} page={p}
-                  checked={!!selected[p.id]}
-                  onChange={(v) => setSelected(s => ({ ...s, [p.id]: v }))}
-                />
-              ))}
-
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-faint)", padding: "8px 12px 4px" }}>Living Landscape</div>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-faint)", padding: "4px 12px 4px", marginTop: 4 }}>Topics</div>
               {getTopics(pages).map(p => (
                 <PageCheckbox key={p.id} page={p}
                   checked={!!selected[p.id]}

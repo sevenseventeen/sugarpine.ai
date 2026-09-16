@@ -1,18 +1,28 @@
-import { Spectral, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google'
+import { Newsreader, DM_Sans, IBM_Plex_Mono, Spectral } from 'next/font/google'
 import './globals.css'
 
-const spectral = Spectral({
+const newsreader = Newsreader({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
+  weight: 'variable',
   style: ['normal', 'italic'],
-  variable: '--loaded-spectral',
+  axes: ['opsz'],
+  variable: '--loaded-newsreader',
   display: 'swap',
 })
 
-const ibmPlexSans = IBM_Plex_Sans({
+const dmSans = DM_Sans({
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--loaded-ibm-sans',
+  weight: 'variable',
+  axes: ['opsz'],
+  variable: '--loaded-dm-sans',
+  display: 'swap',
+})
+
+// Brand wordmark only
+const spectral = Spectral({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  variable: '--loaded-spectral',
   display: 'swap',
 })
 
@@ -30,7 +40,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${spectral.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
+    <html lang="en" className={`${newsreader.variable} ${dmSans.variable} ${ibmPlexMono.variable} ${spectral.variable}`}>
       <body>{children}</body>
     </html>
   )
