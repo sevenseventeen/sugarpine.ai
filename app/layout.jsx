@@ -1,4 +1,5 @@
 import { Newsreader, DM_Sans, IBM_Plex_Mono, Spectral } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const newsreader = Newsreader({
@@ -41,7 +42,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${newsreader.variable} ${dmSans.variable} ${ibmPlexMono.variable} ${spectral.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }
