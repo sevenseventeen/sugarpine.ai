@@ -214,10 +214,11 @@ export function SubscribeModal({ open, target, onClose }) {
               setError(null)
               startTransition(async () => {
                 try {
-                  const scope = allSelected ? 'all' : selectedIds[0]
-                  // Insert one row per selected page (or one 'all' row)
-                  const scopes = allSelected ? ['all'] : selectedIds
-                  await Promise.all(scopes.map(s => subscribe({ email, scope: s, frequency: freq })))
+                  // Section slugs the reader chose, or 'all' for everything
+                  const scopes = allSelected
+                    ? ['all']
+                    : selectedIds.map(id => (pages.find(p => p.id === id) || {}).slug).filter(Boolean)
+                  await subscribe({ email, scopes, frequency: freq })
                   setDone(true)
                 } catch (e) {
                   setError("Something went wrong. Please try again.")
