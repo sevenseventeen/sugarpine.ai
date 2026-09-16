@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef, useTransition } from 'react'
-import { daysAgo, relTime, getTopics } from '../lib/data.js'
+import { daysAgo, relTime, getTopics } from '../lib/format.js'
 import { useShell } from './ShellContext.jsx'
 import { subscribe } from '../app/actions.js'
 

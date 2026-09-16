@@ -1,5 +1,5 @@
 'use client'
-import { fmtDate } from '../lib/data.js'
+import { fmtDate } from '../lib/format.js'
 import { useShell } from './ShellContext.jsx'
 
 const META = { font: "400 10px/1 var(--font-mono)", letterSpacing: ".17em", textTransform: "uppercase", color: "var(--text-dim)" }

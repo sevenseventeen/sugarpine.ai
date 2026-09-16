@@ -17,11 +17,11 @@ const env = Object.fromEntries(
     .map(l => [l.split('=')[0], l.split('=').slice(1).join('=')])
 )
 
-console.log(`Seeding ${isProd ? 'PROD' : 'DEV'}:`, env.NEXT_PUBLIC_SUPABASE_URL)
+console.log(`Seeding ${isProd ? 'PROD' : 'DEV'}:`, env.SUPABASE_URL)
 
 const supabase = createClient(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.SUPABASE_SERVICE_KEY,
+  env.SUPABASE_URL,
+  env.SUPABASE_KEY,
   { auth: { autoRefreshToken: false, persistSession: false } }
 )
 

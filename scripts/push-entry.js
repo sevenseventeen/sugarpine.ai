@@ -16,7 +16,7 @@ const env = Object.fromEntries(
     .filter(l => l && !l.startsWith('#'))
     .map(l => [l.split('=')[0], l.split('=').slice(1).join('=')])
 )
-const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_KEY, { auth: { autoRefreshToken: false, persistSession: false } })
+const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY, { auth: { autoRefreshToken: false, persistSession: false } })
 
 // --delete: take an entry down (memberships cascade)
 if (del) {

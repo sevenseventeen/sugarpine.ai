@@ -1,5 +1,5 @@
 'use client'
-import { fmtDate } from '../lib/data.js'
+import { fmtDate } from '../lib/format.js'
 import { useShell } from './ShellContext.jsx'
 import { YouTubeEmbed } from './ui.jsx'
 
