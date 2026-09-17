@@ -5,6 +5,11 @@
 //   node scripts/send-issue.js            (dev db)
 //   node scripts/send-issue.js --prod     (prod db)
 //   node scripts/send-issue.js --prod --count 3
+//   node scripts/send-issue.js --prod --slugs a-slug,b-slug
+//
+// Prefer --slugs: the pipeline should send exactly what it published this run,
+// which is not always the newest N by date (an older-dated entry can be
+// published today, and a newer one may already have gone out).
 //
 // If beehiiv rejects the request (most likely when the Max trial lapses and
 // the posts API goes 4xx), this still writes the issue HTML to the digests
@@ -18,6 +23,8 @@ const args = process.argv.slice(2)
 const isProd = args.includes('--prod')
 const countArg = args.indexOf('--count')
 const COUNT = countArg > -1 ? Number(args[countArg + 1]) : 3
+const slugsArg = args.indexOf('--slugs')
+const SLUGS = slugsArg > -1 ? String(args[slugsArg + 1] || '').split(',').map((s) => s.trim()).filter(Boolean) : null
 const TEST_RECIPIENT = 'josh@seven-seventeen.com'
 const DIGESTS = '/Users/josh-knight/Documents/life-os/knowledge-base/projects/sugarpine/digests'
 
@@ -32,12 +39,22 @@ const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY, {
 })
 
 // Newest entries, with the topics they're filed under
+const entryQuery = SLUGS
+  ? supabase.from('entries').select('*').in('slug', SLUGS)
+  : supabase.from('entries').select('*').order('published_at', { ascending: false }).limit(COUNT)
+
 const [{ data: pages }, { data: rows }, { data: links }] = await Promise.all([
   supabase.from('pages').select('id, slug, title'),
-  supabase.from('entries').select('*').order('published_at', { ascending: false }).limit(COUNT),
+  entryQuery,
   supabase.from('entry_topics').select('entry_id, page_id'),
 ])
 if (!rows?.length) { console.log('– no entries to send'); process.exit(0) }
+if (SLUGS) {
+  const missing = SLUGS.filter((s) => !rows.some((r) => r.slug === s))
+  if (missing.length) console.log(`⚠ not found, skipping: ${missing.join(', ')}`)
+}
+// Newest first, whichever way they were selected
+rows.sort((a, b) => new Date(b.published_at) - new Date(a.published_at))
 
 const pageById = Object.fromEntries((pages || []).map((p) => [p.id, p]))
 const topicsFor = (id) => (links || []).filter((l) => l.entry_id === id).map((l) => pageById[l.page_id]).filter(Boolean)
