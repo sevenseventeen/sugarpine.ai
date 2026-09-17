@@ -4,14 +4,35 @@ import { daysAgo, relTime, getTopics } from '../lib/format.js'
 import { useShell } from './ShellContext.jsx'
 import { subscribe } from '../app/actions.js'
 
+// The pine mark is a single-color silhouette (public/pine-mark.png) painted
+// through a CSS mask, so it stays crisp at any size and recolors via `color`.
+// size = rendered height; the art's aspect ratio is ~0.78 (w/h).
 export function PineMark({ size = 26, color = "var(--accent)" }) {
+  const w = Math.round(size * 0.78)
   return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-hidden="true" style={{ display: "block" }}>
-      <polygon points="24,4 35,20 13,20" fill={color} />
-      <polygon points="24,15 38,32 10,32" fill={color} />
-      <polygon points="24,26 41,44 7,44" fill={color} />
-      <rect x="22" y="42" width="4" height="5" fill={color} opacity="0.55" />
-    </svg>
+    <span aria-hidden="true" style={{
+      display: "inline-block", width: w, height: size, background: color, flexShrink: 0,
+      WebkitMaskImage: "url(/pine-mark.png)", maskImage: "url(/pine-mark.png)",
+      WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
+      WebkitMaskSize: "contain", maskSize: "contain",
+      WebkitMaskPosition: "center", maskPosition: "center",
+    }} />
+  )
+}
+
+// The wordmark from the logo art (public/wordmark.png), painted through a CSS
+// mask so it recolors via `color` and stays crisp. height = cap height; the
+// art's aspect ratio is ~5.35 (w/h).
+export function Wordmark({ height = 16, color = "var(--accent)" }) {
+  const w = Math.round(height * 5.35)
+  return (
+    <span aria-hidden="true" style={{
+      display: "inline-block", width: w, height, background: color, flexShrink: 0,
+      WebkitMaskImage: "url(/wordmark.png)", maskImage: "url(/wordmark.png)",
+      WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat",
+      WebkitMaskSize: "contain", maskSize: "contain",
+      WebkitMaskPosition: "center", maskPosition: "center",
+    }} />
   )
 }
 

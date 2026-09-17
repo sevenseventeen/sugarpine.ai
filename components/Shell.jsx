@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { NAV } from '../lib/nav.js'
-import { PineMark, SubscribeModal } from './ui.jsx'
+import { PineMark, Wordmark, SubscribeModal } from './ui.jsx'
 import { ShellContext } from './ShellContext.jsx'
 
 // ── Period slider — two knobs on a pressed groove, orange span between ────────
@@ -170,9 +170,9 @@ export default function Shell({ children, pages = [], entries = [] }) {
           {narrow && (
             <button onClick={() => setCollapsed((c) => !c)} aria-label="Menu" style={{ width: 30, height: 30, borderRadius: 9, border: 0, background: "var(--bg)", color: "var(--text-dim)", cursor: "pointer", fontSize: 14, boxShadow: "var(--shadow-btn)", marginRight: 4 }}>☰</button>
           )}
-          <button onClick={goHome} style={{ display: "flex", alignItems: "baseline", gap: 8, padding: 0, border: 0, background: "transparent", cursor: "pointer", font: "500 21px/1 var(--font-brand)", letterSpacing: "-.01em", color: "var(--text-head)" }}>
-            <PineMark size={18} color="var(--text-head)" />
-            Sugarpine
+          <button onClick={goHome} aria-label="Sugarpine — home" style={{ display: "flex", alignItems: "baseline", gap: 10, padding: 0, border: 0, background: "transparent", cursor: "pointer" }}>
+            <PineMark size={24} color="var(--text-head)" />
+            <Wordmark height={16} color="var(--text-head)" />
           </button>
           </div>
         </header>
