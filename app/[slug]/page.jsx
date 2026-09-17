@@ -6,6 +6,10 @@ import GlossaryView from '../../components/GlossaryView.jsx'
 import EntryView from '../../components/EntryView.jsx'
 import { NAV, sectionBySlug } from '../../lib/nav.js'
 
+// Section pages list entries, so they go stale the same way the home page does
+// when the pipeline publishes without a redeploy.
+export const revalidate = 300
+
 // One flat namespace: /science (section), /ai-glossary (page), /openai-releases-chatgpt (entry)
 export async function generateStaticParams() {
   const [pages, entrySlugs] = await Promise.all([getAllPages(), getAllEntryPaths()])

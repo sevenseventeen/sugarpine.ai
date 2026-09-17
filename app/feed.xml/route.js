@@ -2,8 +2,8 @@ import { getAllPages, getAllEntries } from '../../lib/data.js'
 
 // RSS 2.0 feed at /feed.xml — readable in any RSS reader, and the input
 // beehiiv's External RSS feature pulls from to build a newsletter issue.
-// Rebuilt hourly; beehiiv polls on its own schedule.
-export const revalidate = 3600
+// Kept in step with the timeline pages so a new entry shows up everywhere at once.
+export const revalidate = 300
 
 const SITE = 'https://sugarpine.ai'
 const LIMIT = 30
