@@ -76,8 +76,8 @@ function PageCheckbox({ page, checked, onChange }) {
     onMouseLeave={(e) => { if (!checked) e.currentTarget.style.background = "transparent" }}>
       <div style={{
         width: 18, height: 18, borderRadius: 5, flexShrink: 0, cursor: "pointer",
-        border: `2px solid ${checked ? "var(--accent)" : "var(--border)"}`,
-        background: checked ? "var(--accent)" : "transparent",
+        background: checked ? "var(--accent)" : "var(--bg-elev)",
+        boxShadow: checked ? "var(--shadow-btn-primary)" : "var(--shadow-press)",
         display: "grid", placeItems: "center", transition: "all .12s",
       }}>
         {checked && <span style={{ color: "var(--accent-on)", fontSize: 11, lineHeight: 1, fontWeight: 700 }}>✓</span>}
@@ -95,7 +95,6 @@ export function SubscribeModal({ open, target, onClose }) {
   const { pages = [] } = useShell()
   const [email, setEmail] = useState("")
   const [done, setDone] = useState(false)
-  const [freq, setFreq] = useState("instant")
   const [selected, setSelected] = useState({})
   const [error, setError] = useState(null)
   const [isPending, startTransition] = useTransition()
@@ -105,7 +104,7 @@ export function SubscribeModal({ open, target, onClose }) {
   // When modal opens: pre-select the target page (or nothing if "subscribe all" button)
   useEffect(() => {
     if (open) {
-      setDone(false); setEmail(""); setFreq("instant")
+      setDone(false); setEmail("")
       const initial = {}
       if (target) initial[target.id] = true
       setSelected(initial)
@@ -137,31 +136,30 @@ export function SubscribeModal({ open, target, onClose }) {
   const scopeLabel = allSelected
     ? "all of Sugarpine"
     : selectedIds.length === 1
-      ? pages.find(p => p.id === selectedIds[0])?.title
+      ? pages.find(p => String(p.id) === selectedIds[0])?.title
       : `${selectedIds.length} topics`
 
   return (
     <div onMouseDown={onClose} style={{
       position: "fixed", inset: 0, zIndex: 60, display: "grid", placeItems: "center",
-      background: "color-mix(in srgb, var(--bg) 62%, transparent)", backdropFilter: "blur(6px)", padding: 24,
+      background: "rgba(27, 36, 48, .55)", backdropFilter: "blur(6px)", padding: 24,
     }}>
       <div onMouseDown={(e) => e.stopPropagation()} style={{
-        width: "min(520px, 100%)", background: "var(--bg-card)", border: "1px solid var(--border)",
-        borderRadius: 16, boxShadow: "0 30px 80px -20px rgba(0,0,0,.6)", position: "relative",
+        width: "min(520px, 100%)", background: "var(--bg-card)",
+        borderRadius: 16, boxShadow: "var(--shadow-raise), 0 30px 80px -20px rgba(0,0,0,.6)", position: "relative",
         display: "flex", flexDirection: "column", maxHeight: "90vh",
       }}>
         {/* Header */}
-        <div style={{ padding: "26px 28px 16px", borderBottom: "1px solid var(--border)" }}>
-          <button onClick={onClose} aria-label="Close" style={{
+        <div style={{ padding: "26px 28px 16px", boxShadow: "var(--shadow-rule)" }}>
+          <button onClick={onClose} aria-label="Close" className="sp-btn" style={{
             position: "absolute", top: 16, right: 16, width: 30, height: 30, borderRadius: 8,
-            border: "1px solid var(--border)", background: "transparent", color: "var(--text-dim)",
-            cursor: "pointer", fontSize: 16, lineHeight: 1,
+            padding: 0, color: "var(--text-dim)", fontSize: 16, letterSpacing: 0,
           }}>×</button>
           <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12 }}>
             <PineMark size={24} />
             <Eyebrow>Subscribe</Eyebrow>
           </div>
-          <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 22, lineHeight: 1.15, margin: 0, color: "var(--text)", letterSpacing: "-0.01em" }}>
+          <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 22, lineHeight: 1.15, margin: 0, color: "var(--ink)", letterSpacing: "-0.01em" }}>
             Choose what to follow
           </h3>
           <p style={{ margin: "6px 0 0", color: "var(--text-dim)", fontSize: 13.5, lineHeight: 1.5 }}>
@@ -176,13 +174,13 @@ export function SubscribeModal({ open, target, onClose }) {
               {/* Select all row */}
               <label onClick={toggleAll} style={{
                 display: "flex", alignItems: "center", gap: 12, padding: "10px 12px",
-                borderRadius: 9, cursor: "pointer", marginBottom: 4,
-                borderBottom: "1px solid var(--border)", paddingBottom: 12, marginBottom: 8,
+                borderRadius: 0, cursor: "pointer", paddingBottom: 12, marginBottom: 8,
+                boxShadow: "var(--shadow-rule)",
               }}>
                 <div style={{
                   width: 18, height: 18, borderRadius: 5, flexShrink: 0, cursor: "pointer",
-                  border: `2px solid ${allSelected ? "var(--accent)" : "var(--border)"}`,
-                  background: allSelected ? "var(--accent)" : "transparent",
+                  background: allSelected ? "var(--accent)" : "var(--bg-elev)",
+                  boxShadow: allSelected ? "var(--shadow-btn-primary)" : "var(--shadow-press)",
                   display: "grid", placeItems: "center", transition: "all .12s",
                 }}>
                   {allSelected && <span style={{ color: "var(--accent-on)", fontSize: 11, lineHeight: 1, fontWeight: 700 }}>✓</span>}
@@ -205,31 +203,16 @@ export function SubscribeModal({ open, target, onClose }) {
               ))}
             </div>
 
-            {/* Footer: email + frequency + submit */}
-            <div style={{ padding: "16px 28px 24px", borderTop: "1px solid var(--border)" }}>
+            {/* Footer: email + submit */}
+            <div style={{ padding: "16px 28px 24px", boxShadow: "inset 0 1px 0 rgba(160,174,196,.4), 0 -1px 0 rgba(255,255,255,.95)" }}>
               <label style={{ display: "block", fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: 8 }}>Email address</label>
               <input
-                ref={inputRef} type="email" value={email} placeholder="you@example.com"
+                ref={inputRef} type="email" value={email} placeholder="you@example.com" className="sp-well"
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") submitRef.current?.click() }}
-                style={{
-                  width: "100%", boxSizing: "border-box", padding: "11px 14px", borderRadius: 10,
-                  border: "1px solid var(--border)", background: "var(--bg-elev)", color: "var(--text)",
-                  fontSize: 15, fontFamily: "var(--font-ui)", outline: "none",
-                }}
+                style={{ width: "100%", boxSizing: "border-box", padding: "11px 14px", borderRadius: 10, fontSize: 15, fontFamily: "var(--font-ui)", marginBottom: 14 }}
               />
 
-              <div style={{ display: "flex", gap: 8, marginTop: 12, marginBottom: 16 }}>
-                {[["instant", "As it happens"], ["weekly", "Weekly digest"]].map(([k, lbl]) => (
-                  <button key={k} onClick={() => setFreq(k)} style={{
-                    flex: 1, padding: "9px 12px", borderRadius: 10, cursor: "pointer",
-                    border: "1px solid " + (freq === k ? "var(--accent)" : "var(--border)"),
-                    background: freq === k ? "var(--accent-ghost)" : "transparent",
-                    color: freq === k ? "var(--accent)" : "var(--text-dim)",
-                    fontSize: 13, fontFamily: "var(--font-ui)", fontWeight: 500,
-                  }}>{lbl}</button>
-                ))}
-              </div>
 
               <button ref={submitRef} disabled={!valid || isPending} onClick={() => {
               setError(null)
@@ -238,20 +221,14 @@ export function SubscribeModal({ open, target, onClose }) {
                   // Section slugs the reader chose, or 'all' for everything
                   const scopes = allSelected
                     ? ['all']
-                    : selectedIds.map(id => (pages.find(p => p.id === id) || {}).slug).filter(Boolean)
-                  await subscribe({ email, scopes, frequency: freq })
+                    : selectedIds.map(id => (pages.find(p => String(p.id) === id) || {}).slug).filter(Boolean)
+                  await subscribe({ email, scopes })
                   setDone(true)
                 } catch (e) {
                   setError("Something went wrong. Please try again.")
                 }
               })
-            }} style={{
-                width: "100%", padding: "13px", borderRadius: 10, border: "none",
-                cursor: valid ? "pointer" : "not-allowed",
-                background: valid ? "var(--accent)" : "var(--border)",
-                color: valid ? "var(--accent-on)" : "var(--text-faint)",
-                fontSize: 15, fontWeight: 600, fontFamily: "var(--font-ui)", transition: "background .15s",
-              }}>
+            }} className="sp-btn-primary" style={{ padding: "13px", borderRadius: 10, fontSize: 11 }}>
                 {isPending ? "Subscribing…" : noneSelected ? "Select at least one topic" : `Subscribe to ${scopeLabel} →`}
               </button>
               {error && <p style={{ margin: "10px 0 0", fontSize: 13, color: "#e05555", textAlign: "center" }}>{error}</p>}
@@ -265,15 +242,12 @@ export function SubscribeModal({ open, target, onClose }) {
             <div style={{ display: "grid", placeItems: "center", margin: "0 auto 18px", width: 52, height: 52, borderRadius: 99, background: "var(--accent-ghost)" }}>
               <PineMark size={30} />
             </div>
-            <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 23, margin: "0 0 8px", color: "var(--text)" }}>You're subscribed.</h3>
+            <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 500, fontSize: 23, margin: "0 0 8px", color: "var(--ink)" }}>You're subscribed.</h3>
             <p style={{ margin: "0 0 22px", color: "var(--text-dim)", fontSize: 14.5, lineHeight: 1.6 }}>
-              We'll send <span style={{ color: "var(--text)" }}>{email}</span> a{freq === "weekly" ? " weekly digest" : "n email"} whenever{" "}
+              We'll send <span style={{ color: "var(--text)" }}>{email}</span> an email whenever{" "}
               <span style={{ color: "var(--text)" }}>{scopeLabel}</span> {selectedIds.length === 1 ? "changes" : "change"}.
             </p>
-            <button onClick={onClose} style={{
-              padding: "11px 26px", borderRadius: 10, border: "1px solid var(--border)", cursor: "pointer",
-              background: "transparent", color: "var(--text)", fontSize: 14, fontFamily: "var(--font-ui)", fontWeight: 500,
-            }}>Done</button>
+            <button onClick={onClose} className="sp-btn" style={{ padding: "12px 26px", borderRadius: 10 }}>Done</button>
           </div>
         )}
       </div>
@@ -284,7 +258,7 @@ export function SubscribeModal({ open, target, onClose }) {
 export function YouTubeEmbed({ id, title }) {
   const [play, setPlay] = useState(false)
   return (
-    <div style={{ position: "relative", borderRadius: 14, overflow: "hidden", border: "1px solid var(--border)", background: "linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, var(--bg-elev)), var(--bg-elev))", aspectRatio: "16 / 9" }}>
+    <div style={{ position: "relative", borderRadius: 14, overflow: "hidden", boxShadow: "var(--shadow-well)", background: "linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, var(--bg-elev)), var(--bg-elev))", aspectRatio: "16 / 9" }}>
       {play ? (
         <iframe title={title} width="100%" height="100%" style={{ border: 0, display: "block" }}
           src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`}

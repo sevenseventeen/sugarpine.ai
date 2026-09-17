@@ -1,11 +1,13 @@
 'use client'
+import Link from 'next/link'
 import { fmtDate } from '../lib/format.js'
 import { useShell } from './ShellContext.jsx'
 
 const META = { font: "400 10px/1 var(--font-mono)", letterSpacing: ".17em", textTransform: "uppercase", color: "var(--text-dim)" }
+const TAG = { font: "500 10px/1 var(--font-ui)", letterSpacing: ".17em", textTransform: "uppercase" }
 
-function EntryCard({ entry, onOpen }) {
-  const label = entry.topics.map((t) => t.title).join(" · ")
+function EntryCard({ entry }) {
+  const href = `/${entry.slug}`
   return (
     <article className="sp-card" style={{ padding: 12 }}>
       {entry.image && (
@@ -15,12 +17,18 @@ function EntryCard({ entry, onOpen }) {
       )}
       <div style={{ padding: "12px 18px 12px" }}>
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16, marginBottom: 10 }}>
-          <span style={META}>{fmtDate(entry.publishedAt)}</span>
-          <span style={{ ...META, fontFamily: "var(--font-ui)" }}>{label}</span>
+          <span style={{ ...META, whiteSpace: "nowrap" }}>{fmtDate(entry.publishedAt)}</span>
+          <span style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "flex-end" }}>
+            {entry.topics.map((t) => (
+              <Link key={t.slug} href={`/${t.slug}`} className="sp-link" style={TAG}>{t.title}</Link>
+            ))}
+          </span>
         </div>
-        <h2 style={{ margin: "0 0 8px", font: "300 21px/1.3 var(--font-ui)", letterSpacing: ".005em", color: "var(--text)", textWrap: "pretty", maxWidth: "40ch" }}>{entry.title}</h2>
+        <h2 style={{ margin: "0 0 8px", font: "300 21px/1.3 var(--font-ui)", letterSpacing: ".005em", textWrap: "pretty", maxWidth: "40ch" }}>
+          <Link href={href} className="sp-headline">{entry.title}</Link>
+        </h2>
         <p style={{ margin: "0 0 16px", font: "300 14px/1.65 var(--font-ui)", color: "var(--text-dim)", textWrap: "pretty", maxWidth: "70ch" }}>{entry.summary}</p>
-        <button className="sp-btn" onClick={onOpen} style={{ padding: "10px 20px", borderRadius: 11 }}>Read more</button>
+        <Link href={href} className="sp-btn" style={{ padding: "10px 20px", borderRadius: 11 }}>Read more</Link>
       </div>
     </article>
   )
@@ -29,7 +37,7 @@ function EntryCard({ entry, onOpen }) {
 // The home feed and every topic page: one dated list, newest first.
 // `section` scopes it to one nav section; omit it for everything.
 export default function Timeline({ section }) {
-  const { onNavigate, entries, timeline } = useShell()
+  const { entries, timeline } = useShell()
   const { from, to, reset } = timeline
   const range = from === to ? String(from) : `${from}–${to}`
 
@@ -39,10 +47,10 @@ export default function Timeline({ section }) {
   const title = section ? section.label : "All Topics"
 
   return (
-    <div style={{ maxWidth: 1000, padding: "30px clamp(20px, 4vw, 44px) 60px" }}>
+    <div style={{ maxWidth: 1000 }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16, padding: "0 4px 22px", marginBottom: 26, boxShadow: "var(--shadow-rule)" }}>
-        <h1 style={{ margin: 0, font: "italic 300 32px/1 var(--font-display)", letterSpacing: ".005em", color: "var(--text-head)" }}>{title}</h1>
-        <span style={{ font: "400 10px/1 var(--font-mono)", letterSpacing: ".16em", textTransform: "uppercase", color: "var(--text-dim)", whiteSpace: "nowrap" }}>
+        <h1 style={{ margin: 0, font: "italic 300 32px/1 var(--font-display)", letterSpacing: ".005em", color: "var(--ink)" }}>{title}</h1>
+        <span aria-live="polite" style={{ font: "400 10px/1 var(--font-mono)", letterSpacing: ".16em", textTransform: "uppercase", color: "var(--text-dim)", whiteSpace: "nowrap" }}>
           {count} {count === 1 ? "entry" : "entries"}
         </span>
       </div>
@@ -59,7 +67,7 @@ export default function Timeline({ section }) {
           </div>
         )}
         {visible.map((e) => (
-          <EntryCard key={e.id} entry={e} onOpen={() => onNavigate(e.slug)} />
+          <EntryCard key={e.id} entry={e} />
         ))}
       </div>
     </div>

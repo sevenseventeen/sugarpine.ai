@@ -1,12 +1,18 @@
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; }
+body { margin: 0; background: var(--ink); }
 
-/* Soft-UI system (design 3a): one surface colour, depth from light only.
-   Raised = cool grey down-right + white up-left. Pressed = same pair, inset. */
+/* Soft-UI system (design 4b): the page is ink (masthead + rail sit straight on
+   it) with the light feed panel lifted out of it. Depth from light only —
+   raised = cool grey down-right + white up-left, pressed = same pair, inset.
+   One orange accent, reserved for interactive things. */
 :root {
-  --bg: #ECEFF3;
+  --ink: #1B2430;             /* page, headlines, panel title */
+  --ink-deep: #151E28;        /* slider crease */
+  --ink-raised: #2C3744;      /* slider knobs, menu button */
+
+  --bg: #EEF1F5;              /* content panel, cards, secondary buttons */
   --bg-elev: #E4E8EE;
-  --bg-card: #ECEFF3;
+  --bg-card: #EEF1F5;
   --border: rgba(160, 174, 196, .4);
 
   --text: #3F495C;
@@ -14,20 +20,32 @@ body { margin: 0; }
   --text-dim: #59637A;
   --text-faint: #6E798D;
 
-  --accent: #A6440A;
-  --accent-hover: #8F3A08;
-  --accent-on: #FFFFFF;
-  --accent-ghost: rgba(166, 68, 10, .12);
-  --slider-fill: #B4BDCB;
+  /* On ink */
+  --ink-text: #C9CFD9;        /* logo, period readout */
+  --ink-text-dim: #A7B2C2;    /* topic labels */
+  --ink-text-meta: #98A3B4;   /* counts, PERIOD, endpoints, masthead link */
+  --ink-text-muted: #7F8B9C;  /* zero-count topics */
+  --ink-tint: #E8B4A4;        /* active topic, masthead link hover */
+
+  --accent: #B04B2E;
+  --accent-hover: #943D25;
+  --accent-on: #FFF6F3;
+  --accent-ghost: rgba(176, 75, 46, .12);
+  --slider-fill: #7C889B;
 
   --shadow-raise: 2px 2px 0px rgba(0,0,0,.2), inset 2px 2px 0px #fffc;
-  --shadow-btn: 1px 1px 2px rgba(0,0,0,.2), inset 1px 1px 0px #fffc;
+  --shadow-btn: 1px 1px 0px #0003, inset 1px 1px 0px #fffc;
   --bg-hover: #F2F4F7;
-  --bg-header: #E3E8EF;
   --shadow-press: inset 1px 1px 0px #a0aec480, inset -1px -1px 0px #ffffff;
   --shadow-well: inset 3px 3px 6px rgba(152,167,191,.5), inset -2px -2px 5px rgba(255,255,255,.6);
-  --shadow-header: 0 2px 4px rgba(0,0,0,.12);
   --shadow-rule: inset 0 -1px 0 rgba(255,255,255,.95), 0 1px 0 rgba(160,174,196,.4);
+
+  /* Ink-ground counterparts of the same pairs */
+  --shadow-btn-ink: 1px 1px 0px rgba(0,0,0,.45), inset 1px 1px 0px rgba(255,255,255,.3);
+  --shadow-btn-primary: 1px 1px 0px rgba(0,0,0,.35), inset 1px 1px 0px rgba(255,255,255,.3);
+  --shadow-header: 0 2px 0px rgba(0,0,0,.45);   /* the card raise, full-width, at ink opacity */
+  --shadow-press-ink: inset 1px 1px 0px rgba(0,0,0,.55), inset -1px -1px 0px rgba(255,255,255,.08);
+  --shadow-panel: 0 1px 0 rgba(255,255,255,.5), 6px 6px 16px rgba(0,0,0,.35), inset 1px 1px 0 rgba(255,255,255,.9);
 
   --font-display: var(--loaded-newsreader, Georgia, serif);
   --font-brand: var(--loaded-spectral, Georgia, serif);
@@ -35,7 +53,7 @@ body { margin: 0; }
   --font-mono: var(--loaded-ibm-mono, ui-monospace, monospace);
 }
 
-/* Raised pill button — Subscribe, Read more, Clear filters */
+/* Raised pill button — Read more, Clear filters */
 .sp-btn {
   display: inline-block;
   border: 0;
@@ -52,6 +70,38 @@ body { margin: 0; }
 .sp-btn:hover { background: var(--bg-hover); color: var(--accent-hover); }
 .sp-btn:active { box-shadow: none; }
 
+/* Primary button — Subscribe. Full-width on the rail, inline elsewhere. */
+.sp-btn-primary {
+  display: block;
+  width: 100%;
+  border: 0;
+  cursor: pointer;
+  background: var(--accent);
+  color: var(--accent-on);
+  font: 500 11px/1 var(--font-ui);
+  letter-spacing: .19em;
+  text-transform: uppercase;
+  text-align: center;
+  box-shadow: var(--shadow-btn-primary);
+  transition: background .2s, box-shadow .12s, color .2s;
+}
+.sp-btn-primary:hover { background: var(--accent-hover); color: #fff; }
+.sp-btn-primary:active { box-shadow: none; }
+.sp-btn-primary[disabled] { background: var(--bg-elev); color: var(--text-faint); cursor: not-allowed; box-shadow: var(--shadow-btn); }
+
+/* Pressed-in field — email input, checkboxes. 1px depth, same as a pressed button. */
+.sp-well {
+  border: 0;
+  background: var(--bg-elev);
+  color: var(--text);
+  box-shadow: var(--shadow-press);
+  outline: none;
+}
+.sp-well::placeholder { color: var(--text-faint); }
+
+/* Keyboard focus, everywhere */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
 /* Raised card */
 .sp-card {
   background: var(--bg);
@@ -59,8 +109,16 @@ body { margin: 0; }
   box-shadow: var(--shadow-raise);
 }
 
-/* Sidebar filter row */
+/* Sidebar filter row (on ink) */
 .sp-nav { transition: box-shadow .2s, color .2s; }
-.sp-nav:hover { color: #414B5E; }
+.sp-nav:hover { color: var(--ink-tint) !important; }
 
+/* Masthead link (on ink) */
+.sp-mast-link { color: var(--ink-text-meta); text-decoration: none; transition: color .2s; }
+.sp-mast-link:hover { color: var(--ink-tint); }
+
+/* Accent text links — headlines, topic tags */
+.sp-link { color: var(--accent); text-decoration: none; transition: color .2s; }
 .sp-link:hover { color: var(--accent-hover); }
+.sp-headline { color: var(--ink); text-decoration: none; transition: color .2s; }
+.sp-headline:hover { color: var(--accent); }

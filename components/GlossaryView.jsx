@@ -7,9 +7,9 @@ export default function GlossaryView({ page }) {
   const count = terms.length
 
   return (
-    <div style={{ maxWidth: 1000, padding: "30px clamp(20px, 4vw, 44px) 60px" }}>
+    <div style={{ maxWidth: 1000 }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16, padding: "0 4px 22px", marginBottom: 26, boxShadow: "var(--shadow-rule)" }}>
-        <h1 style={{ margin: 0, font: "italic 300 32px/1 var(--font-display)", letterSpacing: ".005em", color: "var(--text-head)" }}>Glossary</h1>
+        <h1 style={{ margin: 0, font: "italic 300 32px/1 var(--font-display)", letterSpacing: ".005em", color: "var(--ink)" }}>Glossary</h1>
         <span style={{ font: "400 10px/1 var(--font-mono)", letterSpacing: ".16em", textTransform: "uppercase", color: "var(--text-dim)", whiteSpace: "nowrap" }}>
           {count} {count === 1 ? "term" : "terms"}
         </span>
